@@ -1,0 +1,28 @@
+.loader {
+    border: 3px solid #f3f3f3; /* Light grey */
+    border-top: 3px solid rgb(0, 65, 119); /* Blue */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    position: absolute;
+    left: 50%;
+    top: 45%;
+    animation: spin 2s linear infinite;
+    transform: translate3d(-50%, -50%, 0);
+    transform-origin: center;
+    will-change: transform;
+
+}
+
+@keyframes spin {
+    0% {
+        transform: translate3d(-50%, -50%, 0) rotate(0deg);
+    }
+    100% {
+         transform: translate3d(-50%, -50%, 0) rotate(360deg);
+    }
+
+@-webkit-keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+} 

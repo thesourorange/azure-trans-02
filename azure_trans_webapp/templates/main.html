@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>{% block title %}{% endblock %}</title>
+        <link rel="icon" type="text/css" href="{{ url_for('static', filename='favicon.ico') }}"  />
+        <link rel="stylesheet" type="text/css" href="{{ bower_url_for(component='leaflet', filename='dist/leaflet.css') }}"  />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}"  />
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='modal.css') }}"  />
+        
+        <script>
+            var placeHolder = "{{ url_for('static', filename='placeholder.svg') }}";
+            var boundingBox = "{{ url_for('static', filename='bounding-box.svg') }}";
+        </script>
+
+        <script type="text/javascript" src="{{ bower_url_for(component='jquery', filename='dist/jquery.min.js') }}"></script>     
+        <script type="text/javascript" src="{{ bower_url_for(component='jquery.cookie', filename='jquery.cookie.js') }}"></script>  
+        <script type="text/javascript" src="{{ bower_url_for(component='leaflet', filename='dist/leaflet.js') }}"></script>     
+        <script type="text/javascript" src="{{ bower_url_for(component='leaflet-image', filename='leaflet-image.js') }}"></script>        
+        <script type="text/javascript" src="{{ url_for('static', filename='main.js') }}"></script>     
+    </head>
+
+    <body>  
+    <div class="main" style="width: 100%; height:100%; z-index:99; overflow:hidden;">
+            <div style="position: absolute; top:0px; bottom:0px; left:0px; right:0px; overflow:hidden; background: url({{ url_for('static', filename='minimalistic-orange_00270079.jpg') }}); background-size: cover;  background-repeat: no-repeat;">
+                <h1 id="header"> &nbsp; 
+                    <div id="loadButton" style="position: absolute; top:4px; right:6px; height:16px;">
+                        <a id="#retrieve" href="" style="border:solid; color: white; color: white; font-size: 16px; height:32px; text-decoration: none; padding:10px;">Refresh</a>
+                    </div>
+                    <div style="position:absolute; top:6px; height:60px; width:200px; color:white; left:0px; opacity:1.0">
+                        <img src="{{ url_for('static', filename='PNGPIX-COM-Microsoft-Logo-PNG-Transparent.png') }}" style="height:45px; width:180px;">
+                    </div>
+                    <div style="position:absolute; top:-13px; height:18px; width:380px; color:#808080; left:180px; font-size: 28px;">
+                       <p> - NSW Traffic Cameras</p>
+                    </div>
+                </h1>
+                <div class="borderbox" style="position:absolute; overflow:auto; top:52px; bottom:20px; left: 0px; right: 0px; margin:10px;">
+                    <div class="mainbox" id="mainbox"></div>
+                </div>
+                <div id="status"  style="position:absolute; bottom:14px; left:10px; right:10px; height:24px;">
+                    <p>Ready</p> 
+                </div>
+                <div id="mapDialog" class="modal">
+                    <div class="modal-content" style="width:700px; height:585px;">
+                        <div class="modal-header">
+                            <span id="mapViewerClose" class="close">&times;</span>
+                            <h2>Map Viewer</h2>
+                        </div>
+                        <div class="modal-body">       
+                            <div id="map" style="width:660px; height:460px;"></div>
+                        </div>
+                    </div>    
+                </div>
+                <div id="waitDialog" class="modal">
+                    <div style="position:fixed; width:100%; height:100%;">
+                        <div class="loader"></div>
+                    </div>
+                </div>
+            </div>     
+        </div>
+    </body>
+</html>
