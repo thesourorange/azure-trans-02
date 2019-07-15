@@ -23,9 +23,9 @@ import tensorflow as tf
 import requests
 import cv2 as cv
 from matplotlib import pyplot as plt
-
 import six.moves.urllib as urllib
 import tarfile
+import base64
 
 from struct import unpack, pack
 
@@ -73,22 +73,71 @@ def url_to_image(url):
     # it into OpenCV format
     resp = urllib.request.urlopen(url)
     image = np.asarray(bytearray(resp.read()), dtype="uint8")
-    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    image = cv.imdecode(image, cv.IMREAD_COLOR)
  
     # return the image
     return image
 
-def process_image(url):
+def unsharp_mask(image, kernel_size=(5, 5), sigma=1.0, amount=1.0, threshold=0):
+    """Return a sharpened version of the image, using an unsharp mask."""
+    blurred = cv.GaussianBlur(image, kernel_size, sigma)
+    sharpened = float(amount + 1) * image - float(amount) * blurred
+    sharpened = np.maximum(sharpened, np.zeros(sharpened.shape))
+    sharpened = np.minimum(sharpened, 255 * np.ones(sharpened.shape))
+    sharpened = sharpened.round().astype(np.uint8)
+    if threshold > 0:
+        low_contrast_mask = np.absolute(image - blurred) < threshold
+        np.copyto(sharpened, image, where=low_contrast_mask)
+    return sharpened
+
+def process_image(f, url):
    detection_graph = tf.Graph()
    with detection_graph.as_default():
       graph_def = tf.GraphDef()
-   with tf.gfile.GFile(os.getcwd() + MODEL_NAME + '/frozen_inference_graph.pb', 'rb') as fid:
+   with tf.gfile.GFile(os.getcwd() + "/" + MODEL_NAME + '/frozen_inference_graph.pb', 'rb') as fid:
       serialized_graph = fid.read()
       graph_def.ParseFromString(serialized_graph)
    with tf.Session() as sess:
       tf.import_graph_def(graph_def, name='')
-      img = url_to_image("url")
+      img = url_to_image(url)
+      rows = img.shape[0]
+      cols = img.shape[1]
+      
+      scale_percent = 2000
+    
+      width = int(img.shape[1] * scale_percent / 100) 
+      height = int(img.shape[0] * scale_percent / 100) 
+      dim = (width, height) 
+      inp = cv.resize(img, dim, interpolation = cv.INTER_AREA) 
+      inp = unsharp_mask(inp)
 
+      inp = inp[:, :, [2, 1, 0]]
+      out = sess.run([sess.graph.get_tensor_by_name('num_detections:0'),
+                    sess.graph.get_tensor_by_name('detection_scores:0'),
+                    sess.graph.get_tensor_by_name('detection_boxes:0'),
+                    sess.graph.get_tensor_by_name('detection_classes:0')],
+                   feed_dict={'image_tensor:0': inp.reshape(1, inp.shape[0], inp.shape[1], 3)})
+      num_detections = int(out[0][0])
+      log(f, "Num of detections: " + str(num_detections))
+     
+      for i in range(num_detections):
+         classId = int(out[3][0][i])
+         score = float(out[1][0][i])
+         bbox = [float(v) for v in out[2][0][i]]
+         if score > 0.3:
+            x = bbox[1] * cols
+            y = bbox[0] * rows
+            right = bbox[3] * cols
+            bottom = bbox[2] * rows
+            cv.rectangle(img, (int(x), int(y)), (int(right), int(bottom)), (125, 255, 51), thickness=2)
+
+   figure = plt.figure()
+   figure.figimage(img)
+   bytes = io.BytesIO()
+   figure.savefig(bytes, format='png')
+   figure.savefig('image.png', format='png')
+   bytes.seek(0)
+   return base64.b64encode(bytes.read())   
 
 @views.route("/")
 def home():
@@ -96,11 +145,12 @@ def home():
 
 @views.route("/identify", methods=["GET"])
 def identify():
+   configuration = getConfiguration()
    f = open(configuration['debug_file'], 'a')
    url = request.args.get('url')
    log(f, "Processing - url:'" + url + "'")
-   return ""
-
+   return process_image(f, url)
+ 
 @views.route("/retrieve", methods=["GET"])
 def list():
    configuration = getConfiguration()

@@ -93,7 +93,10 @@ function getTrafficImages() {
 function getBoundedImage(url) {
     var parameters = {url:url};
     $.get('/identify', parameters, function(data) {  
-        alert(data);
+        $("#boxImage").attr("src", `data:image/png;base64,${data}`);
+        $('#boxImage').css('display', 'inline-block');
+        $('#boxDialog').css('display', 'inline-block');
+        $('#waitDialog').css('display', 'none');
     });
 
 }
@@ -127,13 +130,19 @@ $.fn.Show = function(long, lat) {
 }
 
 $.fn.Identify = function(url) {
-    alert('Identify: ' + url);
+
+    indentifyImage(url);
+
 }
 
 $(document).ready(function() {
 
     $('#mapViewerClose').on('click', function(e) {
         $('#mapDialog').css('display', 'none');
+    });
+
+    $('#boxViewerClose').on('click', function(e) {
+        $('#boxDialog').css('display', 'none');
     });
 
     $('#waitDialog').css('display', 'inline-block');
