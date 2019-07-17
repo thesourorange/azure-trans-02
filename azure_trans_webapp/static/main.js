@@ -30,7 +30,7 @@ async function retrieveImages() {
 
 }
 
-async function indentifyImage(url) {
+async function indentifyImage(id) {
 
     $('#waitDialog').css('display', 'inline-block');
 
@@ -39,7 +39,7 @@ async function indentifyImage(url) {
             
             setTimeout(function() {
 
-                getBoundedImage(url);
+                getBoundedImage(id);
                 
             }, 3000);
 
@@ -63,13 +63,13 @@ function getTrafficImages() {
 
          for (var feature in result.features) {
            cards += "<div style='padding:10px;'> <div class='card-content' style='position:relative;'><img src='" + 
-                    result.features[feature].properties.href + "?" + Date().toString() +
+                    "/get" + "?id=" + result.features[feature].id +
                     "' style='width:310px; height:200px; text-align:center;'/> " +
                     "<p> View: " + result.features[feature].properties.view + "</p>" +
                     "<p> Direction: " + result.features[feature].properties.direction + "</p>" +
                     "<p> Region: " + result.features[feature].properties.region + "</p>" +
                         "<div style='position:absolute; bottom:10px; right:30px'>" +
-                            "<button id='button' onclick='$(this).Identify(\"" +  result.features[feature].properties.href + "\");'>" + 
+                            "<button id='button' onclick='$(this).Identify(\"" +  result.features[feature].id + "\");'>" + 
                                 `<img src='${boundingBox}' style='padding-top:2px; width:18px; height:18px; text-align:center;'/> ` +
                             "</button>" +
                         "</div>" +  
@@ -90,8 +90,8 @@ function getTrafficImages() {
     });  
 }
 
-function getBoundedImage(url) {
-    var parameters = {url:url};
+function getBoundedImage(id) {
+    var parameters = {id:id};
     $.get('/identify', parameters, function(data) {  
         $("#boxImage").attr("src", `data:image/png;base64,${data}`);
         $('#boxImage').css('display', 'inline-block');
@@ -129,9 +129,9 @@ $.fn.Show = function(long, lat) {
   
 }
 
-$.fn.Identify = function(url) {
+$.fn.Identify = function(id) {
 
-    indentifyImage(url);
+    indentifyImage(id);
 
 }
 
