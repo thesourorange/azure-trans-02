@@ -1,4 +1,5 @@
 from flask import Flask, Blueprint, render_template, request, send_file
+import numpy as np
 import binascii
 import ctypes
 import codecs
@@ -62,7 +63,7 @@ def get_images():
          obtaining_image = True
 
          while obtaining_image: 
-            print(str(datetime.datetime.now()) + " Retrieving: " + id + " - " + properties['href'])
+            print(str(datetime.datetime.now()) + " : Retrieving: " + id + " - " + properties['href'])
       
             try:
                resp = urllib.request.urlopen(properties['href'])
@@ -81,13 +82,8 @@ def get_images():
   
       log(f, str(e))
 
-   print(str(len(images)) + " = " + str(counter))
-
    print(str(datetime.datetime.now()) + " - Completed ")
    f.close()
-
-   timer = threading.Timer(60.0, get_images) 
-   timer.start() 
 
 def log(f, message):
    f.write(str(datetime.datetime.now()))
@@ -144,7 +140,7 @@ def process_image(f, id):
       graph_def.ParseFromString(serialized_graph)
    with tf.Session() as sess:
       tf.import_graph_def(graph_def, name='')
-      img = images[id]
+      img = np.copy(images[id])
       rows = img.shape[0]
       cols = img.shape[1]
       
@@ -243,3 +239,5 @@ for file in tar_file.getmembers():
 
 print(str(datetime.datetime.now()) + " : " + "Obtained model - '" + os.getcwd() + "'")
 get_images()
+timer = threading.Timer(60.0, get_images) 
+timer.start()
