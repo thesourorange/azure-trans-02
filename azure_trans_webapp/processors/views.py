@@ -26,10 +26,16 @@ from matplotlib import pyplot as plt
 import six.moves.urllib as urllib
 import tarfile
 import base64
-import threading
 import io
 
 from struct import unpack, pack
+
+from threading import Timer
+
+class RepeatTimer(Timer):
+    def run(self):
+        while not self.finished.wait(self.interval):
+            self.function(*self.args, **self.kwargs)
 
 images = {}
 
@@ -56,6 +62,8 @@ def get_images():
   
       result = req.json()
       counter = 0
+      print(str(datetime.datetime.now()) + " : Getting Images")
+
       for feature in result['features']:
          id = feature['id']
          properties = feature['properties']
@@ -63,12 +71,13 @@ def get_images():
          obtaining_image = True
 
          while obtaining_image: 
-            print(str(datetime.datetime.now()) + " : Retrieving: " + id + " - " + properties['href'])
+            print(str(datetime.datetime.now()) + " : [" + str(counter) + "] : Retrieving: " + id + " - " + properties['href'])
       
             try:
                resp = urllib.request.urlopen(properties['href'])
                image = np.asarray(bytearray(resp.read()), dtype="uint8")
                image = cv.imdecode(image, cv.IMREAD_COLOR)
+
                images[id] = image
                obtaining_image = False
                counter += 1
@@ -82,7 +91,7 @@ def get_images():
   
       log(f, str(e))
 
-   print(str(datetime.datetime.now()) + " - Completed ")
+   print(str(datetime.datetime.now()) + " : Completed ")
    f.close()
 
 def log(f, message):
@@ -238,6 +247,7 @@ for file in tar_file.getmembers():
       print(str(datetime.datetime.now()) + " : " + "Obtained tar extract - '" + os.getcwd() + os.pathsep + "frozen_inference_graph.pb")
 
 print(str(datetime.datetime.now()) + " : " + "Obtained model - '" + os.getcwd() + "'")
+
 get_images()
-timer = threading.Timer(60.0, get_images) 
-timer.start()
+
+RepeatTimer(60.0, get_images)

@@ -53,7 +53,6 @@ async function indentifyImage(id) {
 
 }
 
-
 function getTrafficImages() {
     
     var parameters = {format:'JSON'};
@@ -68,6 +67,14 @@ function getTrafficImages() {
                     "<p> View: " + result.features[feature].properties.view + "</p>" +
                     "<p> Direction: " + result.features[feature].properties.direction + "</p>" +
                     "<p> Region: " + result.features[feature].properties.region + "</p>" +
+
+                        "<div style='position:absolute; bottom:10px; right:50px'>" +
+                            "<button id='button' onclick='$(this).Download(\"" +  result.features[feature].id + "\");'>" + 
+                                `<img src='${downloadImage}' style='padding-top:2px; width:18px; height:18px; text-align:center;'/> ` +
+                             "</button>" +
+                        "</div>" +  
+
+
                         "<div style='position:absolute; bottom:10px; right:30px'>" +
                             "<button id='button' onclick='$(this).Identify(\"" +  result.features[feature].id + "\");'>" + 
                                 `<img src='${boundingBox}' style='padding-top:2px; width:18px; height:18px; text-align:center;'/> ` +
@@ -132,6 +139,24 @@ $.fn.Show = function(long, lat) {
 $.fn.Identify = function(id) {
 
     indentifyImage(id);
+
+}
+
+$.fn.Download = function(id) {
+    console.log(`Saving - ${id}.png`);
+    var saveLink = document.createElement("a");
+
+    var click = function(node) {
+        var event = new MouseEvent("click");
+
+        node.dispatchEvent(event);
+
+    }
+
+    saveLink.href = `/get?id=${id}`;
+    saveLink.download = `${id}.png`;
+    
+    click(saveLink);
 
 }
 
