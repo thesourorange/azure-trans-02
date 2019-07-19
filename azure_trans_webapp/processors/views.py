@@ -27,17 +27,12 @@ import six.moves.urllib as urllib
 import tarfile
 import base64
 import io
+import threading
 
 from struct import unpack, pack
 
-from threading import Timer
-
-class RepeatTimer(Timer):
-    def run(self):
-        while not self.finished.wait(self.interval):
-            self.function(*self.args, **self.kwargs)
-
 images = {}
+timer = None
 
 views = Blueprint('views', __name__, template_folder='templates')
 
@@ -235,6 +230,23 @@ def list():
       f.close()
       return ""
 
+@views.route("/refresh", methods=["GET"])
+def refresh():
+   get_images()
+
+   keys = []
+
+   for image in images:
+      keys.append(image)
+
+   req = {
+
+      'images' : keys
+
+   }
+
+   return json.dumps(req, sort_keys=True)
+
 print(str(datetime.datetime.now()) + " : " + "Obtaining model")
 
 opener = urllib.request.URLopener()
@@ -249,5 +261,3 @@ for file in tar_file.getmembers():
 print(str(datetime.datetime.now()) + " : " + "Obtained model - '" + os.getcwd() + "'")
 
 get_images()
-
-RepeatTimer(60.0, get_images)

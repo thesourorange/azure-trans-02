@@ -59,10 +59,12 @@ function getTrafficImages() {
     $.get('/retrieve', parameters, function(data) {  
         var result = JSON.parse(data);
         var cards = "";
+        var d = new Date();
 
-         for (var feature in result.features) {
-           cards += "<div style='padding:10px;'> <div class='card-content' style='position:relative;'><img src='" + 
-                    "/get" + "?id=" + result.features[feature].id +
+        for (var feature in result.features) {
+           cards += "<div style='padding:10px;'> <div class='card-content' style='position:relative;'>" +
+                    `<img id=${result.features[feature].id} src='`+ 
+                    `/get?id=${result.features[feature].id}&timestamp=${d.getTime()}` +
                     "' style='width:310px; height:200px; text-align:center;'/> " +
                     "<p> View: " + result.features[feature].properties.view + "</p>" +
                     "<p> Direction: " + result.features[feature].properties.direction + "</p>" +
@@ -170,16 +172,33 @@ $(document).ready(function() {
         $('#boxDialog').css('display', 'none');
     });
 
-    $('#waitDialog').css('display', 'inline-block');
     
+    $('#refresh').on('click', function(e) {
+        var parameters = {};
+
+        $('#waitDialog').css('display', 'inline-block');
+
+        $.get('/refresh', parameters, function(data) {
+            var date = new Date().getTime();
+            var result = JSON.parse(data);
+
+            for (var image in result.images) {
+                var id = result.images[image];
+                console.log(`Updating: ${image} - ${id}`);
+                $(`#${id}`).attr("src", `/get?id=${id}&timestamp=${date}`)
+            }
+
+            $('#mainbox').html($('#mainbox').html());
+            $('#waitDialog').css('display', 'none');
+
+        } );
+    
+        return false;
+
+    });
+
+    $('#waitDialog').css('display', 'inline-block');
+
     retrieveImages();
-
-});
-
-$('#retrieve').on('click', function(e) {
-
-    retrieveImages();
-
-    return false;
 
 });
