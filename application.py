@@ -11,8 +11,11 @@ startup:app in the Gunicorn command.
 
 from os import environ
 from  azure_trans_webapp.webapp import app
+from os
 
-print('Starting', __name__)
+f = open('debug_start.log', a)
+f.write('started')
+f.close()
 
 if __name__ == '__main__':
 
