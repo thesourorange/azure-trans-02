@@ -110,3 +110,5 @@ keys.json
 bower_components
 canlog_file_manager/keys.py
 debug.txt
+ssd_mobilenet_v1_coco_2018_01_28.tar.gz
+ssd_mobilenet_v1_coco_2018_01_28/frozen_inference_graph.pb

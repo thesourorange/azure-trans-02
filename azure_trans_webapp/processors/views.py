@@ -247,17 +247,21 @@ def refresh():
 
    return json.dumps(req, sort_keys=True)
 
-print(str(datetime.datetime.now()) + " : " + "Obtaining model")
+def startup():
+   print(str(datetime.datetime.now()) + " : " + "Obtaining model")
 
-opener = urllib.request.URLopener()
-opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
-tar_file = tarfile.open(MODEL_FILE)
-for file in tar_file.getmembers():
-   file_name = os.path.basename(file.name)
-   if 'frozen_inference_graph.pb' in file_name:
-      tar_file.extract(file, os.getcwd())    
-      print(str(datetime.datetime.now()) + " : " + "Obtained tar extract - '" + os.getcwd() + os.pathsep + "frozen_inference_graph.pb")
+   opener = urllib.request.URLopener()
+   opener.retrieve(DOWNLOAD_BASE + MODEL_FILE, MODEL_FILE)
+   tar_file = tarfile.open(MODEL_FILE)
+   for file in tar_file.getmembers():
+      file_name = os.path.basename(file.name)
+      if 'frozen_inference_graph.pb' in file_name:
+         tar_file.extract(file, os.getcwd())    
+         print(str(datetime.datetime.now()) + " : " + "Obtained tar extract - '" + os.getcwd() + os.pathsep + "frozen_inference_graph.pb")
 
-print(str(datetime.datetime.now()) + " : " + "Obtained model - '" + os.getcwd() + "'")
+   print(str(datetime.datetime.now()) + " : " + "Obtained model - '" + os.getcwd() + "'")
 
-get_images()
+   get_images()
+
+threading.Timer(1.0, startup).start()
+
