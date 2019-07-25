@@ -12,8 +12,7 @@ startup:app in the Gunicorn command.
 from os import environ
 from azure_trans_webapp.webapp import app
 
-print('Starting', __name__)
-
+print('Starting', __na
 if __name__ == '__main__':
 
     HOST = environ.get('SERVER_HOST', 'localhost')
