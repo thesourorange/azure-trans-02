@@ -22,7 +22,6 @@ import numpy as np
 import tensorflow as tf
 import requests
 import cv2 as cv
-from matplotlib import pyplot as plt
 import six.moves.urllib as urllib
 import tarfile
 import base64
